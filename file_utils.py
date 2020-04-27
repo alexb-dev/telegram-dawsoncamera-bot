@@ -10,8 +10,9 @@ from typing import Dict, List, Tuple
 
 TIME_DELTA_TOLERANCE = 5 # criteria to group files
 
-def groupPicsByTime() -> List[List[str]]:
-	""" Group files by time proximity into a list """
+def groupPicsByTime(pathToPics=pathToPics) -> List[List[str]]:
+	""" Group files by time proximity into a list
+	from oldest to youngest """
 
 	listOfFiles = glob.glob(pathToPics + r'/*.jpg') # * means all if need specific format then *.csv
 	listOfFiles.sort(key=os.path.getctime)

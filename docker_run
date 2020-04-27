@@ -1,0 +1,4 @@
+docker run  -it \
+    -v /share/stuff/git/telegram-dawsoncamera-bot:/usr/src/app \
+    -v /share/Public/cam_motion/Entrance:/share/Public/cam_motion/Entrance \
+    -v /share/Public/cam_motion/enrty2:/share/Public/cam_motion/enrty2 python

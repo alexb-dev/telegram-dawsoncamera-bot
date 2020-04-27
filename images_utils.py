@@ -7,7 +7,7 @@ import cv2
 from typing import Dict, List, Tuple
 import file_utils
 import numpy as np
-
+import tempfile
 
 # construct the argument parse and parse the arguments
 # ap = argparse.ArgumentParser()
@@ -129,12 +129,14 @@ def get_ss_score(file1: str, file2: str) -> float:
 
 
 #-----------------------------------------------------------------------------------------------------
-def compare_two_images_3(file1: str, file2: str, fileOut: str):
+def compare_two_images_3(ObjFileName: str, RefFileName: str, fileOut=None) -> str:
+    """ Compares two images and return image with boxes """
     
-    AREA_TRESHOLD = 50000
+    # show only boxes w/ area larger than (px^2):
+    AREA_TRESHOLD = 60000
     
-    imageA = cv2.imread(file1)
-    imageB = cv2.imread(file2)
+    imageA = cv2.imread(ObjFileName)
+    imageB = cv2.imread(RefFileName)
     
     #original = imutils.resize(imageA, height = 600)
     #new = imutils.resize(imageB, height = 600)
@@ -154,11 +156,6 @@ def compare_two_images_3(file1: str, file2: str, fileOut: str):
     #converting the difference into grascale
     gray = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
     (score, diff) = structural_similarity(grayA, grayB, full=True)
-
-
-    # cv2.imshow(f'{score:.2f}', gray)
-    # cv2.waitKey(0)
-
  
     #increasing the size of differences so we can capture them all
     for i in range(0, 3):
@@ -175,29 +172,31 @@ def compare_two_images_3(file1: str, file2: str, fileOut: str):
     cnts = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
 
-    hasMovement = False
-
     #lets sort by rectangle size
     boxes = []
     for c in cnts:
         (x, y, w, h) = cv2.boundingRect(c)
         boxes.append([w*h, [x,y,w,h]])
-
     boxes.sort(reverse=True)
+
     for area,[x,y,w,h] in boxes[:10]: 
         if  area>AREA_TRESHOLD:
-            cv2.rectangle(new, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            #cv2.rectangle(original, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            #cv2.rectangle(new, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.rectangle(original, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    
+    # if the output file is not specified, creata temporary file
+    if not fileOut:
+        import tempfile
+        # tmpdir = tempfile.gettempdir()
+        # import random, string, os 
+        # tmpfile = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8)) + '.jpg'
+        # fileOut = os.path.join(tmpdir, tmpfile)
+        fileOutFD, fileOut = tempfile.mkstemp(suffix='.jpg')
+        print (fileOut)
+    
+    cv2.imwrite(fileOut, original, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
 
-
-     
-    #uncomment below 2 lines if you want to
-    #view the image press any key to continue
-    #write the identified changes to disk
-    fileOut1 = fileOut.replace('.jpg', '_1.jpg')
-    cv2.imwrite(fileOut1, new, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
-    fileOut2 = fileOut.replace('.jpg', '_2.jpg')
-    cv2.imwrite(fileOut2, original, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
+    return fileOut
 
 def blendImages(files: List[str], saveAs: str):
     
