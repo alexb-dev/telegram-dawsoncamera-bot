@@ -1,0 +1,5 @@
+scikit-image
+python-telegram-bot
+#numpy
+opencv-contrib-python
+imutils

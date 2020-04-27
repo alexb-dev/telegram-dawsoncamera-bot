@@ -9,12 +9,10 @@ import os, glob
 import time
 from os.path import getctime
 
-# path to a folder with pictures
+# path to a folders with pictures
 pic_path = r'/share/Public/cam_motion/Entrance/*'
+pic_path1_root = r'/share/Public/cam_motion/Entrance/'
 pic_path2_root = r'/share/Public/cam_motion/enrty2/'
-import os
-
-
 
 import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -28,9 +26,11 @@ def callback_sendpic(context):
     """ send the latest photo to user, if he has not received it yet """
     
     last_seen_pics = last_seen_pic_dic.get(context.job.context,['',''])
+    logging.info('Latest pics: %s'  % str(last_seen_pic_dic))
     latest_files = get_latest_pic()
     for i, (latestSeenPic, latestPic) in enumerate(zip(last_seen_pics, latest_files)):
         if latestSeenPic != latestPic:
+            #print(f"{latestSeenPic} != {latestPic}")
             context.bot.send_photo(chat_id=context.job.context, photo=open(latestPic, 'rb'))
             last_seen_pic_dic[context.job.context][i]  = latestPic
             # if 'LINE_CROSS' in latest_file: 
@@ -53,7 +53,11 @@ def get_latest_pic():
     """   
     
     # Camera 1  
-    list_of_files = glob.glob(pic_path) # * means all if need specific format then *.csv
+    all_subdirs = [os.path.join(pic_path1_root,d) for d in os.listdir(pic_path1_root) if os.path.isdir(os.path.join(pic_path1_root,d))]
+    latest_subdir = max(all_subdirs, key=os.path.getmtime)
+
+    #list_of_files = glob.glob(pic_path) # * means all if need specific format then *.csv
+    list_of_files = glob.glob(latest_subdir + r'/*') # * means all if need specific format then *.csv
     latest_file = max(list_of_files, key=os.path.getctime)
 
     list_of_files.sort(key = os.path.getctime)
@@ -71,8 +75,7 @@ def get_latest_pic():
 
     list_of_files.sort(key = os.path.getctime)
     first_file_of_series2 = list(file for file in list_of_files[-10:] if getctime(list_of_files[-1]) - getctime(file)<7)[0] 
-
-    print (first_file_of_series1, first_file_of_series2)
+    #print (first_file_of_series1, first_file_of_series2)
     return [first_file_of_series1, first_file_of_series2]
 
 
@@ -101,6 +104,14 @@ def main():
 
     updater.start_polling()
 
+def test_images_utils():
+    #test
+    print('Testing image_utils...')
+    import images_utils
+    images_utils.main()
+
 
 if __name__ == '__main__':
-    main()
+    #main()
+    test_images_utils()
+    
