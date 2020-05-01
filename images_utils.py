@@ -8,6 +8,7 @@ from typing import Dict, List, Tuple
 import file_utils
 import numpy as np
 import tempfile
+import glob
 
 # construct the argument parse and parse the arguments
 # ap = argparse.ArgumentParser()
@@ -211,9 +212,15 @@ def blendImages(files: List[str], saveAs: str):
             alpha = 1.0/(i + 1)
             beta = 1.0 - alpha
             dst = cv2.addWeighted(image_data[i], alpha, dst, beta, 0.0)
+            print(f'Blending {i} of {len(image_data)}')
     #save as
     cv2.imwrite(saveAs, dst, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
 
+
+def test_blend():
+    pathToPics = r'/Users/sash/mnt/zavulon_pub/cam_motion/Entrance/2020_04_13-2020_05_12'
+    listOfFiles = glob.glob(pathToPics + r'/*.jpg') 
+    blendImages(listOfFiles, 'blended.jpg')
 
 def main():
     fileLists = file_utils.groupPicsByTime()
@@ -235,14 +242,15 @@ def main():
 
 
 
-        fileOut = f'out_{index}.jpg'
+        fileOut = 'out_{}.jpg'.format(index)
         compare_two_images_3(groupCur[0], groupCur[-1],fileOut)
         # print('\n'.join([','.join(map(lambda x: f' {x[0]:.2f}',row)) for row in score]))
         # print (score)
 
 
 if __name__ == '__main__':
-    main()
+    #main()
+    #test_blend()
 
 
 
