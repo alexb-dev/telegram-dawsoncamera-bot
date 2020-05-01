@@ -133,15 +133,15 @@ def compare_two_images_3(ObjFileName: str, RefFileName: str, fileOut=None) -> st
     """ Compares two images and return image with boxes """
     
     # show only boxes w/ area larger than (px^2):
-    AREA_TRESHOLD = 60000
+    AREA_TRESHOLD = 10000
     
     imageA = cv2.imread(ObjFileName)
     imageB = cv2.imread(RefFileName)
     
-    #original = imutils.resize(imageA, height = 600)
-    #new = imutils.resize(imageB, height = 600)
-    original = imageA
-    new = imageB
+    original = imutils.resize(imageA, height = 600)
+    new = imutils.resize(imageB, height = 600)
+    #original = imageA
+    #new = imageB
 
     grayA = cv2.cvtColor(original, cv2.COLOR_BGR2GRAY)
     grayB = cv2.cvtColor(new, cv2.COLOR_BGR2GRAY)
@@ -186,11 +186,6 @@ def compare_two_images_3(ObjFileName: str, RefFileName: str, fileOut=None) -> st
     
     # if the output file is not specified, creata temporary file
     if not fileOut:
-        import tempfile
-        # tmpdir = tempfile.gettempdir()
-        # import random, string, os 
-        # tmpfile = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8)) + '.jpg'
-        # fileOut = os.path.join(tmpdir, tmpfile)
         fileOutFD, fileOut = tempfile.mkstemp(suffix='.jpg')
         print (fileOut)
     

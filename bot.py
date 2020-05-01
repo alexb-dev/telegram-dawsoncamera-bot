@@ -15,8 +15,11 @@ import tempfile
 import file_utils
 import images_utils
 
+import os
+TELEGRAM_CAMERA_BOT_TOKEN = os.environ.get('TELEGRAM_CAMERA_BOT_TOKEN')
+
 # path to a folders with pictures
-pic_path = r'/share/Public/cam_motion/Entrance/*'
+#pic_path = r'/share/Public/cam_motion/Entrance/*'
 pic_path1_root = r'/share/Public/cam_motion/Entrance/'
 pic_path2_root = r'/share/Public/cam_motion/enrty2/'
 
@@ -29,11 +32,14 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 last_seen_pic_dic = {}
 
 def callback_sendpic(context):
-    """ send the latest photo to user, if he has not received it yet """
+    """ send the latest photos to user, if he has not received it yet """
     
     last_seen_pics = last_seen_pic_dic.get(context.job.context,['',''])
+    
     logging.info('Latest pics: %s'  % str(last_seen_pic_dic))
+    
     latest_files = get_latest_pic()
+    
     for i, (latestSeenPic, latestPic) in enumerate(zip(last_seen_pics, latest_files)):
         if latestSeenPic != latestPic:
             #print(f"{latestSeenPic} != {latestPic}")
@@ -60,6 +66,7 @@ def get_latest_pic() -> List[str]:
     """   
     
     # Camera 1  
+    # Pictures are stored in folders by month
     all_subdirs = [os.path.join(pic_path1_root,d) for d in os.listdir(pic_path1_root) if os.path.isdir(os.path.join(pic_path1_root,d))]
     latest_subdir = max(all_subdirs, key=os.path.getmtime)
 
@@ -98,8 +105,6 @@ def get_latest_pic_w_boxes() -> List[str]:
     latest_subdir = max(all_subdirs, key=os.path.getmtime)
     groupedFiles = file_utils.groupPicsByTime(latest_subdir)
 
-    #tmpFile1, tmpFile1Path  = tempfile.mkstemp()
-    #print(tmpFile1Path)
     lastImage, firstImage = groupedFiles[-1][-1], groupedFiles[-1][0]
     tmpFile1Path = images_utils.compare_two_images_3(firstImage, lastImage, None)
    
@@ -122,9 +127,13 @@ def get_latest_pic_w_boxes() -> List[str]:
 
 
 def callback_start(update, context):
-    """ entry point for each user, starts calling callback_sendpic every 10 second """
+    """ 
+    entry point for each user, starts calling callback_sendpic every 10 second 
+    """
+    
+    # initializing dictionary with user key
     last_seen_pic_dic[update.message.chat_id] = ['','']
-    #context.user_data['last_seen_pic'] = ''
+
     context.bot.send_message(chat_id=update.message.chat_id, text='Welcome to Camera bot, I will start sending you new photos!')
     context.job_queue.run_repeating(callback_sendpic, interval=10, first=0, context=update.message.chat_id)
     
@@ -136,7 +145,7 @@ def pic(update, context):
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(latest_file, 'rb'))
 
 def main():
-    updater = Updater(token='1186794145:AAHl7gK5fXGBa0LZqMBvZqs5yfsg0xjoYgg', use_context=True)
+    updater = Updater(token=TELEGRAM_CAMERA_BOT_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
     start_handler = CommandHandler('start', callback_start, pass_job_queue=True)
     dispatcher.add_handler(start_handler)
