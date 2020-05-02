@@ -12,8 +12,10 @@ import time
 from os.path import getctime
 import tempfile
 
-import file_utils
-import images_utils
+from os import sys, path
+sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+import camerabot.file_utils as file_utils
+import camerabot.images_utils as images_utils
 
 import os
 TELEGRAM_CAMERA_BOT_TOKEN = os.environ.get('TELEGRAM_CAMERA_BOT_TOKEN')
@@ -160,7 +162,6 @@ def main():
 def test_images_utils():
     # test
     print('Testing image_utils...')
-    import images_utils
     images_utils.main()
 
 

@@ -9,5 +9,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 #COPY . .
 
-CMD [ "python", "./bot.py" ]
+CMD [ "python", "./camerabot/bot.py" ]
 #CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
