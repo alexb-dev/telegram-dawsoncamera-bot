@@ -145,6 +145,8 @@ def pic(update, context):
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(latest_file, 'rb'))
 
 def main():
+    print('Starting the camera bot')
+    print(f'With the token: {TELEGRAM_CAMERA_BOT_TOKEN}')
     updater = Updater(token=TELEGRAM_CAMERA_BOT_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
     start_handler = CommandHandler('start', callback_start, pass_job_queue=True)
