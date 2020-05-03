@@ -6,7 +6,8 @@ class TestSum(unittest.TestCase):
     def test_import_and_iamge_compare(self):
         try:
             from os import sys, path
-            sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+            #sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+            sys.path.append('./')
             import camerabot.file_utils as file_utils
             import camerabot.images_utils as images_utils
             
