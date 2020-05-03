@@ -1,3 +1,5 @@
+# <p align="center">camerabot - Pythoon Telegram Bot to send pics from camera
+
 ![unit_tests](https://github.com/alexb-dev/telegram-dawsoncamera-bot/workflows/unit_tests/badge.svg)
 
 Telegram bot to send new pictures from cameras (assuming camera saves them at the local folder)
