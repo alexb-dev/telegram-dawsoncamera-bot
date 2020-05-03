@@ -197,6 +197,7 @@ def compare_two_images_3(ObjFileName: str, RefFileName: str, fileOut=None) -> st
     
     cv2.imwrite(fileOut, original, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
 
+    1/0
     return fileOut
 
 def blendImages(files: List[str], saveAs: str):
