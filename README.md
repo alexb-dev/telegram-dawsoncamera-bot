@@ -1,4 +1,4 @@
-# <p align="center">camerabot - Pythoon Telegram Bot to send pics from camera
+# <p align="center">camerabot - a Telegram Bot to send pics from camera
 
 ![unit_tests](https://github.com/alexb-dev/telegram-dawsoncamera-bot/workflows/unit_tests/badge.svg)
 
