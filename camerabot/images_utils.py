@@ -5,7 +5,12 @@ import argparse
 import imutils
 import cv2
 from typing import Dict, List, Tuple
+
+from os import sys, path
+sys.path.append(path.dirname(path.abspath(__file__)))
 import file_utils
+
+
 import numpy as np
 import tempfile
 import glob
