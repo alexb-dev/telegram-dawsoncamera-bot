@@ -1,0 +1,7 @@
+#!/bin/bash
+docker run  -it  --rm \
+    -v /Users/sash/mnt/zavulon_pub/cam_motion/Entrance:/Users/sash/mnt/zavulon_pub/cam_motion/Entrance \
+    -v /Users/sash/mnt/zavulon_pub/cam_motion/enrty2:/Users/sash/mnt/zavulon_pub/cam_motion/enrty2 \
+    camerabot
+
+

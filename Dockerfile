@@ -4,7 +4,9 @@ RUN mkdir -p /share/Public/cam_motion/Entrance
 RUN mkdir -p /share/Public/cam_motion/enrty2
 WORKDIR /usr/src/app
 
-COPY requirements.txt ./
+COPY . /usr/src/app
+#COPY requirements.txt ./
+RUN ls -la ./*
 RUN pip install --no-cache-dir -r requirements.txt
 
 #COPY . .

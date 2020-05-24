@@ -16,6 +16,7 @@ from os import sys, path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 import camerabot.file_utils as file_utils
 import camerabot.images_utils as images_utils
+from config import PATH_TO_IMAGES
 
 import os
 TELEGRAM_CAMERA_BOT_TOKEN = os.environ.get('TELEGRAM_CAMERA_BOT_TOKEN')
@@ -36,7 +37,7 @@ last_seen_pic_dic = {}
 def callback_sendpic(context):
     """ send the latest photos to user, if he has not received it yet """
     
-    last_seen_pics = last_seen_pic_dic.get(context.job.context,['',''])
+    last_seen_pics = last_seen_pic_dic.get(context.job.context, ['' for _ in range(len(PATH_TO_IMAGES))])
     
     logging.info('Latest pics: %s'  % str(last_seen_pic_dic))
     
@@ -67,33 +68,31 @@ def get_latest_pic() -> List[str]:
     I want to grab the first one in the series (i.e. no older than 7 seconds from the last file) 
     """   
     
-    # Camera 1  
-    # Pictures are stored in folders by month
-    all_subdirs = [os.path.join(pic_path1_root,d) for d in os.listdir(pic_path1_root) if os.path.isdir(os.path.join(pic_path1_root,d))]
-    latest_subdir = max(all_subdirs, key=os.path.getmtime)
+    imageList = []
 
-    #list_of_files = glob.glob(pic_path) # * means all if need specific format then *.csv
-    list_of_files = glob.glob(latest_subdir + r'/*') # * means all if need specific format then *.csv
-    latest_file = max(list_of_files, key=os.path.getctime)
+    for parentFolder in PATH_TO_IMAGES:
+        logging.debug(f'Checking folder: {parentFolder}')
+        # all directories in parentFolder:
+        all_subdirs = [os.path.join(parentFolder,d) for d in os.listdir(parentFolder) if os.path.isdir(os.path.join(parentFolder,d))]
+        
+        if  all_subdirs:
+            latest_subdir = max(all_subdirs, key=os.path.getmtime)
+            logging.debug(f'Latest subfolder: {latest_subdir}')
 
-    list_of_files.sort(key = os.path.getctime)
-    first_file_of_series1 = list(file for file in list_of_files[-10:] if getctime(list_of_files[-1]) - getctime(file)<7)[0] 
-   
-    # Camera 2
+            #list_of_files = glob.glob(pic_path) # * means all if need specific format then *.csv
+            list_of_files = glob.glob(latest_subdir + r'/*') # * means all if need specific format then *.csv
+            latest_file = max(list_of_files, key=os.path.getctime)
 
-    # get the most recent folder
-    # camera creates fodlers each month
-    all_subdirs = [os.path.join(pic_path2_root,d) for d in os.listdir(pic_path2_root) if os.path.isdir(os.path.join(pic_path2_root,d))]
-    latest_subdir = max(all_subdirs, key=os.path.getmtime)
+            list_of_files.sort(key = os.path.getctime)
+            first_file_of_series = list(file for file in list_of_files[-10:] if getctime(list_of_files[-1]) - getctime(file)<7)[0] 
+        else:
+            first_file_of_series = ''
+        
+        imageList.append(first_file_of_series)    
 
-    list_of_files = glob.glob(latest_subdir + r'/*') # * means all if need specific format then *.csv
-    latest_file = max(list_of_files, key=os.path.getctime)
+    logging.debug(f'Found files: {imageList}')
 
-    list_of_files.sort(key = os.path.getctime)
-    first_file_of_series2 = list(file for file in list_of_files[-10:] if getctime(list_of_files[-1]) - getctime(file)<7)[0] 
-    #print (first_file_of_series1, first_file_of_series2)
-
-    return [first_file_of_series1, first_file_of_series2]
+    return imageList
 
 def get_latest_pic_w_boxes() -> List[str]:    
     """ Get the latest meaningful files from folders with boxes around moving objects
@@ -102,30 +101,20 @@ def get_latest_pic_w_boxes() -> List[str]:
     boxes are determined by comparing with the last image in series (typially by then the object is gone)
     """   
     
-    # Camera 1  
-    all_subdirs = [os.path.join(pic_path1_root,d) for d in os.listdir(pic_path1_root) if os.path.isdir(os.path.join(pic_path1_root,d))]
-    latest_subdir = max(all_subdirs, key=os.path.getmtime)
-    groupedFiles = file_utils.groupPicsByTime(latest_subdir)
+    imageList = []
+    for parentFolder in PATH_TO_IMAGES:
+        all_subdirs = [os.path.join(parentFolder,d) for d in os.listdir(parentFolder) if os.path.isdir(os.path.join(parentFolder,d))]
+        if not all_subdirs:
+            imageList.append('')
+            continue
+        latest_subdir = max(all_subdirs, key=os.path.getmtime)
+        groupedFiles = file_utils.groupPicsByTime(latest_subdir)
 
-    lastImage, firstImage = groupedFiles[-1][-1], groupedFiles[-1][0]
-    tmpFile1Path = images_utils.compare_two_images_3(firstImage, lastImage, None)
-   
-    # Camera 2
+        lastImage, firstImage = groupedFiles[-1][-1], groupedFiles[-1][0]
+        tmpFile1Path = images_utils.compare_two_images_3(firstImage, lastImage, None)
+        imageList.append(tmpFile1Path)
 
-    # get the most recent folder
-    # camera creates fodlers each month
-    all_subdirs = [os.path.join(pic_path2_root,d) for d in os.listdir(pic_path2_root) if os.path.isdir(os.path.join(pic_path2_root,d))]
-    latest_subdir = max(all_subdirs, key=os.path.getmtime)
-    groupedFiles = file_utils.groupPicsByTime(latest_subdir)
-
-    #tmpFile2, tmpFile2Path  = tempfile.mkstemp()
-    #print(tmpFile2Path)
-    lastImage, firstImage = groupedFiles[-1][-1], groupedFiles[-1][0]
-    tmpFile2Path = images_utils.compare_two_images_3(firstImage, lastImage, None)
-
-
-    return [tmpFile1Path, tmpFile2Path]
-
+    return imageList
 
 
 def callback_start(update, context):
@@ -134,17 +123,17 @@ def callback_start(update, context):
     """
     
     # initializing dictionary with user key
-    last_seen_pic_dic[update.message.chat_id] = ['','']
+    last_seen_pic_dic[update.message.chat_id] = ['' for _ in range(len(PATH_TO_IMAGES))]
 
     context.bot.send_message(chat_id=update.message.chat_id, text='Welcome to Camera bot, I will start sending you new photos!')
     context.job_queue.run_repeating(callback_sendpic, interval=10, first=0, context=update.message.chat_id)
     
 
-def pic(update, context):
-    """ depricated """
-    list_of_files = glob.glob(pic_path) # * means all if need specific format then *.csv
-    latest_file = max(list_of_files, key=os.path.getctime)
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(latest_file, 'rb'))
+# def pic(update, context):
+#     """ depricated """
+#     list_of_files = glob.glob(pic_path) # * means all if need specific format then *.csv
+#     latest_file = max(list_of_files, key=os.path.getctime)
+#     context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(latest_file, 'rb'))
 
 def main():
     print('Starting the camera bot')
