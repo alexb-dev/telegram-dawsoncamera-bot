@@ -2,7 +2,14 @@
 
 ![unit_tests](https://github.com/alexb-dev/telegram-dawsoncamera-bot/workflows/unit_tests/badge.svg)
 
-Telegram bot to send new pictures from cameras (assuming camera saves them at the local folder)
+Telegram bot to send new pictures from cameras (assuming camera saves them at the local folder).
+
+Support multiple folders with images.
+Note, the bot is not working with camera directly, it only cheks for images in specific folders.
+(For example for Hikvision cameras save motion detected images over FTP)
+
+It also draws a box around the region where the motion has occured.
+(By comparing first and last files in series)
 
 direct run:  
 

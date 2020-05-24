@@ -1,6 +1,7 @@
 # config.py: contains some definitions
 #
-# PATH_TO_IMAGES: path to folders, that contain folder with images
+# PATH_TO_IMAGES: path to folders, with images
+# if CHECK_SUBFOLDER = True, finding the latest subfolder in the path
 # you can add fodler, that does not exist, it will be ignored
 # in my case each camera creates a folder every month
 # so I need to point to the parent folder, and the script will find the latest folder automatically
@@ -19,7 +20,9 @@ PATH_TO_IMAGES = (
     r'/Users/sash/mnt/zavulon_pub/cam_motion/Entrance/',
     r'/Users/sash/mnt/zavulon_pub/cam_motion/enrty2/',
     )
-
+# looks for the latest subfolder in the path fron PATH_TO_IMAGES if True
+# otherwise uses the path from PATH_TO_IMAGES  itself
+CHECK_SUBFOLDER = True
 
 
 

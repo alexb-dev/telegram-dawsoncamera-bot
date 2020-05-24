@@ -16,7 +16,7 @@ from os import sys, path
 sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 import camerabot.file_utils as file_utils
 import camerabot.images_utils as images_utils
-from config import PATH_TO_IMAGES
+from config import PATH_TO_IMAGES, CHECK_SUBFOLDER
 
 import os
 TELEGRAM_CAMERA_BOT_TOKEN = os.environ.get('TELEGRAM_CAMERA_BOT_TOKEN')
@@ -27,7 +27,7 @@ pic_path1_root = r'/share/Public/cam_motion/Entrance/'
 pic_path2_root = r'/share/Public/cam_motion/enrty2/'
 
 import logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG)
 
 # dictionary to store latest photo seen by user
 # key = user_id
@@ -35,17 +35,20 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 last_seen_pic_dic = {}
 
 def callback_sendpic(context):
-    """ send the latest photos to user, if he has not received it yet """
+    """ 
+    send the latest photos to user, if he has not received it yet 
+    """
     
     last_seen_pics = last_seen_pic_dic.get(context.job.context, ['' for _ in range(len(PATH_TO_IMAGES))])
     
-    logging.info('Latest pics: %s'  % str(last_seen_pic_dic))
+    logging.debug('Latest pics: %s'  % str(last_seen_pic_dic))
+    
     
     latest_files = get_latest_pic()
     
     for i, (latestSeenPic, latestPic) in enumerate(zip(last_seen_pics, latest_files)):
         if latestSeenPic != latestPic:
-            #print(f"{latestSeenPic} != {latestPic}")
+            # generate images with boxes around movement
             latestPicWBoxes = get_latest_pic_w_boxes()
             context.bot.send_photo(chat_id=context.job.context, photo=open(latestPicWBoxes[i], 'rb'))
             last_seen_pic_dic[context.job.context][i]  = latestPic
@@ -73,7 +76,12 @@ def get_latest_pic() -> List[str]:
     for parentFolder in PATH_TO_IMAGES:
         logging.debug(f'Checking folder: {parentFolder}')
         # all directories in parentFolder:
-        all_subdirs = [os.path.join(parentFolder,d) for d in os.listdir(parentFolder) if os.path.isdir(os.path.join(parentFolder,d))]
+        
+        if CHECK_SUBFOLDER:
+            all_subdirs = [os.path.join(parentFolder,d) for d in os.listdir(parentFolder) if os.path.isdir(os.path.join(parentFolder,d))]
+        else:
+            all_subdirs = [parentFolder,]
+
         
         if  all_subdirs:
             latest_subdir = max(all_subdirs, key=os.path.getmtime)
@@ -103,7 +111,10 @@ def get_latest_pic_w_boxes() -> List[str]:
     
     imageList = []
     for parentFolder in PATH_TO_IMAGES:
-        all_subdirs = [os.path.join(parentFolder,d) for d in os.listdir(parentFolder) if os.path.isdir(os.path.join(parentFolder,d))]
+        if CHECK_SUBFOLDER:
+            all_subdirs = [os.path.join(parentFolder,d) for d in os.listdir(parentFolder) if os.path.isdir(os.path.join(parentFolder,d))]
+        else:
+            all_subdirs = [parentFolder,]
         if not all_subdirs:
             imageList.append('')
             continue

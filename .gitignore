@@ -2,4 +2,6 @@
 __pycache__/
 *.py[cod]
 
+# lets hide it since it contain Telegram Token
+Dockerfile
 
