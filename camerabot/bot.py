@@ -75,6 +75,9 @@ def get_latest_pic() -> List[str]:
 
     for parentFolder in PATH_TO_IMAGES:
         logging.debug(f'Checking folder: {parentFolder}')
+        if not os.path.exists(parentFolder):
+            imageList.append('')
+            continue
         # all directories in parentFolder:
         
         if CHECK_SUBFOLDER:
@@ -111,6 +114,10 @@ def get_latest_pic_w_boxes() -> List[str]:
     
     imageList = []
     for parentFolder in PATH_TO_IMAGES:
+        if not os.path.exists(parentFolder):
+            imageList.append('')
+            continue
+
         if CHECK_SUBFOLDER:
             all_subdirs = [os.path.join(parentFolder,d) for d in os.listdir(parentFolder) if os.path.isdir(os.path.join(parentFolder,d))]
         else:
