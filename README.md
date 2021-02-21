@@ -29,4 +29,4 @@ API token needs to be set accordingly
 or in docker environment variables  
 
 ```ENV TELEGRAM_CAMERA_BOT_TOKEN=""```
-
+AVB
