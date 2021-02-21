@@ -1,5 +1,5 @@
 # import the necessary packages
-from skimage.measure import compare_ssim
+# from skimage.measure import compare_ssim
 from skimage.metrics import structural_similarity
 import argparse
 import imutils
